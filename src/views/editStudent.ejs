@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Management System</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/js/all.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #e9ecef 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 650px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .header {
+            background: linear-gradient(to right, #4b6cb7, #182848);
+            color: white;
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+        }
+
+        .header h1 i {
+            color: #fff;
+        }
+
+        .add-student-form {
+            padding: 2rem;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            margin-bottom: 0.5rem;
+            color: #333;
+            font-weight: 600;
+            transition: color 0.3s ease;
+        }
+
+        .form-group input {
+            padding: 0.75rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #4b6cb7;
+            box-shadow: 0 0 0 3px rgba(75, 108, 183, 0.1);
+        }
+
+        .error-message {
+            color: #dc3545;
+            font-size: 0.8rem;
+            margin-top: 0.25rem;
+            height: 1rem;
+        }
+
+        .btn {
+            grid-column: span 2;
+            background: linear-gradient(to right, #4b6cb7, #182848);
+            color: white;
+            padding: 0.9rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        @media (max-width: 600px) {
+            .add-student-form {
+                grid-template-columns: 1fr;
+            }
+
+            .btn {
+                grid-column: span 1;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>
+                <i class="fas fa-user-graduate"></i>
+                Student Management System
+            </h1>
+        </div>
+        <form id="studentEditForm" class="add-student-form">
+            <div class="form-group">
+                <label for="name">Full Name</label>
+                <input type="text" id="name" value="<%=student.name%>" placeholder="Enter student name" required>
+                <span class="error-message" id="nameError"></span>
+            </div>
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" value="<%=student.email%>" placeholder="Enter email address" required>
+                <span class="error-message" id="emailError"></span>
+            </div>
+            <div class="form-group">
+                <label for="age">Age</label>
+                <input type="number" id="age" value="<%=student.age%>" placeholder="Enter age" required min="16"
+                    max="100">
+                <span class="error-message" id="ageError"></span>
+            </div>
+            <div class="form-group">
+                <label for="department">Department</label>
+                <input type="text" id="department" value="<%=student.department%>" placeholder="Enter Department"
+                    required>
+                <span class="error-message" id="departmentError"></span>
+            </div>
+            <button type="submit" class="btn">Save Changes</button>
+        </form>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        document.getElementById('studentEditForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const name = document.getElementById('name').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const age = document.getElementById('age').value.trim();
+            const department = document.getElementById('department').value.trim();
+
+            let valid = true;
+
+            document.getElementById('nameError').textContent = '';
+            document.getElementById('emailError').textContent = '';
+            document.getElementById('ageError').textContent = '';
+            document.getElementById('departmentError').textContent = '';
+
+            if (!name) {
+                document.getElementById('nameError').textContent = 'Name is required';
+                valid = false;
+            }
+            if (!email) {
+                document.getElementById('emailError').textContent = 'Email is required';
+                valid = false;
+            }
+            if (!age) {
+                document.getElementById('ageError').textContent = 'Age is required';
+                valid = false;
+            }
+            if (!department) {
+                document.getElementById('departmentError').textContent = 'Department is required';
+                valid = false;
+            }
+
+            if (!valid) return;
+
+            try {
+                const response = await fetch(`/editStudent/<%=student._id%>`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, email, age, department })
+                });
+
+                const data = await response.json();
+                if (response.ok) {
+                    Swal.fire({
+                        title: "Updated!",
+                        text: "Student information updated successfully!",
+                        icon: "success"
+                    }).then(() => {
+                        window.location.href = '/';
+                    });
+                } else {
+                    Swal.fire("Error", "Failed to update the student data.", "error");
+                }
+            } catch (error) {
+                console.log(error);
+                Swal.fire("Error", "An error occurred while updating the student.", "error");
+            }
+        });
+
+
+        ['name', 'email', 'age', 'department'].forEach(field => {
+            document.getElementById(field).addEventListener('input', () => {
+                document.getElementById(`${field}Error`).textContent = '';
+            });
+        });
+
+
+    </script>
